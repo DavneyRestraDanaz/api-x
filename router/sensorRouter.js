@@ -27,4 +27,30 @@ router.post('/', async (req, res) => {
     }
 });
 
+// Memperbarui data sensor tertentu (partial update)
+router.patch('/:id', async (req, res) => {
+    const { id } = req.params;
+    const { temperature, humidity, water_sensor, motion_sensor, door_locked, door, lamp } = req.body;
+    
+    try {
+        const updatedSensor = await Sensor.update(id, {
+            temperature,
+            humidity,
+            water_sensor,
+            motion_sensor,
+            door_locked,
+            door,
+            lamp
+        });
+
+        if (!updatedSensor) {
+            return res.status(404).json({ message: 'Sensor not found' });
+        }
+
+        res.json(updatedSensor);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+
 module.exports = router;
