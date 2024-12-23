@@ -6,12 +6,12 @@ const Sensor = {
         const res = await pool.query('SELECT * FROM sensors');
         return res.rows;
     },
-    create: async (temperature, humidity, water_sensor, sensor_pir, sensor_api) => {
+    create: async (temperature, humidity, water_sensor, motion_sensor, door_locked, door, lamp) => {
         const res = await pool.query(`
-            INSERT INTO sensors (temperature, humidity, water_sensor, sensor_pir, sensor_api, created_at)
-            VALUES ($1, $2, $3, $4, $5, NOW()) -- NOW() untuk timestamp saat ini
+            INSERT INTO sensors (temperature, humidity, water_sensor, motion_sensor, door_locked, door, lamp, created_at)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
             RETURNING *;
-        `, [temperature, humidity, water_sensor, sensor_pir, sensor_api]);
+        `, [temperature, humidity, water_sensor, motion_sensor, door_locked, door, lamp]);
         return res.rows[0];
     },
 };

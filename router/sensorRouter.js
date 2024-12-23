@@ -16,11 +16,11 @@ router.get('/', async (req, res) => {
 
 // Menambahkan data sensor baru
 router.post('/', async (req, res) => {
-    const { temperature, humidity, water_sensor, sensor_pir, sensor_api } = req.body;
+    const { temperature, humidity, water_sensor, motion_sensor, door_locked, door, lamp } = req.body;
     console.log(req.body);
 
     try {
-        const newSensor = await Sensor.create(temperature, humidity, water_sensor, sensor_pir, sensor_api);
+        const newSensor = await Sensor.create(temperature, humidity, water_sensor, motion_sensor, door_locked, door, lamp);
         res.status(201).json(newSensor);
     } catch (error) {
         res.status(400).json({ message: error.message });
