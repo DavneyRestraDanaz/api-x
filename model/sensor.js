@@ -3,7 +3,7 @@ const pool = require('./db');
 
 const Sensor = {
     getAll: async () => {
-        const res = await pool.query('SELECT * FROM sensors');
+        const res = await pool.query('SELECT * FROM sensors ORDER BY created_at DESC');
         return res.rows;
     },
     
