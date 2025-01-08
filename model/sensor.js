@@ -1,25 +1,38 @@
-// model/Sensor.js
 const pool = require('./db');
 
 const Sensor = {
+    // Ambil semua data sensor
     getAll: async () => {
-        const res = await pool.query('SELECT * FROM sensors ORDER BY created_at DESC');
-        return res.rows;
+        try {
+            const res = await pool.query('SELECT * FROM sensors ORDER BY created_at DESC');
+            return res.rows;
+        } catch (error) {
+            console.error('Error fetching sensors:', error);
+            throw new Error('Failed to fetch sensors');
+        }
     },
-    
+
+    // Buat entri sensor baru
     create: async (temperature, humidity, water_sensor, motion_sensor, door_locked, door, lamp) => {
-        const res = await pool.query(`
-            INSERT INTO sensors (temperature, humidity, water_sensor, motion_sensor, door_locked, door, lamp, created_at)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
-            RETURNING *;
-        `, [temperature, humidity, water_sensor, motion_sensor, door_locked, door, lamp]);
-        return res.rows[0];
+        try {
+            const res = await pool.query(`
+                INSERT INTO sensors (temperature, humidity, water_sensor, motion_sensor, door_locked, door, lamp, created_at)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+                RETURNING *;
+            `, [temperature, humidity, water_sensor, motion_sensor, door_locked, door, lamp]);
+
+            return res.rows[0];
+        } catch (error) {
+            console.error('Error creating sensor:', error);
+            throw new Error('Failed to create sensor');
+        }
     },
-    
+
+    // Perbarui data sensor
     update: async (id, data) => {
         const { temperature, humidity, water_sensor, motion_sensor, door_locked, door, lamp } = data;
 
-        // Validasi apakah ada data yang diberikan
+        // Validasi jika tidak ada data yang diberikan
         if (
             temperature === undefined &&
             humidity === undefined &&
@@ -33,7 +46,7 @@ const Sensor = {
         }
 
         try {
-            // Gunakan COALESCE untuk menyimpan nilai lama jika data baru bernilai undefined
+            // Gunakan COALESCE untuk mempertahankan nilai lama jika data baru bernilai undefined atau null
             const res = await pool.query(`
                 UPDATE sensors
                 SET 
@@ -46,8 +59,18 @@ const Sensor = {
                     lamp = COALESCE($7, lamp)
                 WHERE id = $8
                 RETURNING *;
-            `, [temperature, humidity, water_sensor, motion_sensor, door_locked, door, lamp, id]);
+            `, [
+                temperature ?? null, // Jika undefined, set ke null
+                humidity ?? null,
+                water_sensor ?? null,
+                motion_sensor ?? null,
+                door_locked ?? null,
+                door ?? null,
+                lamp ?? null,
+                id
+            ]);
 
+            // Kembalikan hasil update
             return res.rows[0];
         } catch (error) {
             console.error('Error updating sensor:', error);
