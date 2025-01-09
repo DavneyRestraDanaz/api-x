@@ -28,6 +28,7 @@ router.post('/', async (req, res) => {
 });
 
 // Memperbarui data sensor tertentu (partial update)
+// router/sensorRouter.js
 router.patch('/:id', async (req, res) => {
     const { id } = req.params;
     const updates = req.body;
@@ -39,21 +40,12 @@ router.patch('/:id', async (req, res) => {
             return res.status(404).json({ message: 'Sensor not found' });
         }
 
-        // Hanya update field yang dikirim dan tidak null
-        const updatedFields = {};
-        for (const [key, value] of Object.entries(updates)) {
-            if (value !== null) {
-                updatedFields[key] = value;
-            } else {
-                // Gunakan nilai yang ada jika update adalah null
-                updatedFields[key] = currentSensor[key];
-            }
-        }
-
-        const updatedSensor = await Sensor.update(id, updatedFields);
+        // Update sensor dengan data baru
+        const updatedSensor = await Sensor.update(id, updates);
         res.json(updatedSensor);
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        console.error('Error updating sensor:', error);
+        res.status(400).json({ message: error.message });
     }
 });
 

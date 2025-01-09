@@ -76,6 +76,20 @@ const Sensor = {
             console.error('Error updating sensor:', error);
             throw new Error('Failed to update sensor');
         }
+    },
+
+    // Ambil data sensor berdasarkan ID
+    getById: async (id) => {
+        try {
+            const res = await pool.query('SELECT * FROM sensors WHERE id = $1', [id]);
+            if (res.rows.length === 0) {
+                return null;
+            }
+            return res.rows[0];
+        } catch (error) {
+            console.error('Error fetching sensor by id:', error);
+            throw new Error('Failed to fetch sensor by id');
+        }
     }
 };
 
