@@ -30,23 +30,27 @@ router.post('/', async (req, res) => {
 // Memperbarui data sensor tertentu (partial update)
 router.patch('/:id', async (req, res) => {
     const { id } = req.params;
-    const { temperature, humidity, water_sensor, motion_sensor, door_locked, door, lamp } = req.body;
+    const updates = req.body;
     
     try {
-        const updatedSensor = await Sensor.update(id, {
-            temperature,
-            humidity,
-            water_sensor,
-            motion_sensor,
-            door_locked,
-            door,
-            lamp
-        });
-
-        if (!updatedSensor) {
+        // Dapatkan data sensor yang ada
+        const currentSensor = await Sensor.getById(id);
+        if (!currentSensor) {
             return res.status(404).json({ message: 'Sensor not found' });
         }
 
+        // Hanya update field yang dikirim dan tidak null
+        const updatedFields = {};
+        for (const [key, value] of Object.entries(updates)) {
+            if (value !== null) {
+                updatedFields[key] = value;
+            } else {
+                // Gunakan nilai yang ada jika update adalah null
+                updatedFields[key] = currentSensor[key];
+            }
+        }
+
+        const updatedSensor = await Sensor.update(id, updatedFields);
         res.json(updatedSensor);
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -54,3 +58,4 @@ router.patch('/:id', async (req, res) => {
 });
 
 module.exports = router;
+
